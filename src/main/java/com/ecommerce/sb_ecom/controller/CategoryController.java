@@ -1,4 +1,4 @@
-package com.ecommerce.sb_ecom.category;
+package com.ecommerce.sb_ecom.controller;
 
 import com.ecommerce.sb_ecom.model.Category;
 import com.ecommerce.sb_ecom.service.CategoryService;
