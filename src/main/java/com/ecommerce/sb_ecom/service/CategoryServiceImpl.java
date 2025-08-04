@@ -13,11 +13,29 @@ public class CategoryServiceImpl implements CategoryService
 
     @Override
     public List<Category> getAllCategories() {
-        return List.of();
+        return categories;
     }
 
     @Override
-    public void createCategory(Category category) {
+    public void createCategory(Category category)
+    {
+        categories.add(category);
+    }
+
+    @Override
+    public String deleteCategory(Long categoryId)
+    {
+        Category category=categories.stream()
+                .filter(c->c.getCategoryId().equals(categoryId))
+                .findFirst().orElse(null);
+
+        categories.remove(category);
+
+        if(category==null)
+            return "Category with id"+categoryId+"not found";
+
+        else
+            return "Category with id" +categoryId+ "deleted";
 
     }
 }
