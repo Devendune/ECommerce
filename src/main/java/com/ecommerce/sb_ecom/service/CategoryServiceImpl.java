@@ -1,7 +1,10 @@
 package com.ecommerce.sb_ecom.service;
 
 import com.ecommerce.sb_ecom.model.Category;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,15 +30,10 @@ public class CategoryServiceImpl implements CategoryService
     {
         Category category=categories.stream()
                 .filter(c->c.getCategoryId().equals(categoryId))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Resource Not Found"));
 
         categories.remove(category);
-
-        if(category==null)
-            return "Category with id"+categoryId+"not found";
-
-        else
-            return "Category with id" +categoryId+ "deleted";
-
+        return "Category with id" +categoryId+ "deleted";
     }
 }
