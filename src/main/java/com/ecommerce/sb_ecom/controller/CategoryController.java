@@ -22,15 +22,16 @@ public class CategoryController
     @GetMapping("/api/public/categories")
     public List<Category> getAllCategories()
     {
+
         return categoryService.getAllCategories();
     }
 
     @PostMapping("/api/admin/createCategory")
-    public String createCategory(@RequestBody Category category)
+    public ResponseEntity<String> createCategory(@RequestBody Category category)
     {
         category.setCategoryId(currId++);
-        categoryService.createCategory(category);
-        return "category is created brother";
+        String status=categoryService.createCategory(category);
+        return new ResponseEntity<>(status,HttpStatus.OK);
     }
 
     @DeleteMapping("/api/admin/deleteCategory/{categoryId}")

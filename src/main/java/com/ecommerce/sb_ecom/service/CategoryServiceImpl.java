@@ -20,9 +20,10 @@ public class CategoryServiceImpl implements CategoryService
     }
 
     @Override
-    public void createCategory(Category category)
+    public String createCategory(Category category)
     {
         categories.add(category);
+        return "The category was added successfully";
     }
 
     @Override
