@@ -8,6 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService
@@ -37,4 +38,15 @@ public class CategoryServiceImpl implements CategoryService
         categories.remove(category);
         return "Category with id" +categoryId+ "deleted";
     }
+
+    @Override
+    public String updateCategory(Category category, Long categoryId) {
+        Optional<Category> =categories.stream()
+                .filter(c->c.getCategoryId().equals(categoryId))
+                .findFirst();
+
+
+    }
+
+    public
 }

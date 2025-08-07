@@ -20,10 +20,10 @@ public class CategoryController
     }
 
     @GetMapping("/api/public/categories")
-    public List<Category> getAllCategories()
+    public ResponseEntity<List<Category>> getAllCategories()
     {
-
-        return categoryService.getAllCategories();
+        List<Category>categories=categoryService.getAllCategories();
+        return new ResponseEntity<>(categories,HttpStatus.OK);
     }
 
     @PostMapping("/api/admin/createCategory")
