@@ -29,7 +29,6 @@ public class CategoryController
     @PostMapping("/api/admin/createCategory")
     public ResponseEntity<String> createCategory(@RequestBody Category category)
     {
-        category.setCategoryId(currId++);
         String status=categoryService.createCategory(category);
         return new ResponseEntity<>(status,HttpStatus.OK);
     }

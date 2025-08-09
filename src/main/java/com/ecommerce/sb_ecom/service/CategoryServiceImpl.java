@@ -1,6 +1,9 @@
 package com.ecommerce.sb_ecom.service;
 
 import com.ecommerce.sb_ecom.model.Category;
+import com.ecommerce.sb_ecom.repository.CategoryRepository;
+import jakarta.persistence.Access;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,44 +18,44 @@ public class CategoryServiceImpl implements CategoryService
 {
     private List<Category> categories=new ArrayList<>();
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @Override
     public List<Category> getAllCategories() {
-        return categories;
+       return categoryRepository.findAll();
     }
 
     @Override
     public String createCategory(Category category)
     {
-        categories.add(category);
+        categoryRepository.save(category);
         return "The category was added successfully";
     }
 
     @Override
     public String deleteCategory(Long categoryId)
     {
+        List<Category>categories=categoryRepository.findAll();
         Category category=categories.stream()
                 .filter(c->c.getCategoryId().equals(categoryId))
                 .findFirst()
                 .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Resource Not Found"));
 
-        categories.remove(category);
+        categoryRepository.delete(category);
         return "Category with id" +categoryId+ "deleted";
     }
 
     @Override
-    public Category updateCategory(Category category, Long categoryId) {
-        Optional<Category>optionalCategory =categories.stream()
-                .filter(c->c.getCategoryId().equals(categoryId))
-                .findFirst();
-
+    public Category updateCategory(Category category, Long categoryId)
+    {
+        Optional<Category> optionalCategory=categoryRepository.findById(categoryId);
         if(optionalCategory.isPresent())
         {
-            System.out.println("Inside optional category present");
             Category existingCategory=optionalCategory.get();
-            System.out.println("The input category name is "+category.getCategoryName());
             existingCategory.setCategoryName(category.getCategoryName());
-            System.out.println("The optional category name after setting is "+existingCategory.getCategoryName());
-            return existingCategory;
+            Category updatedCategory=categoryRepository.save(existingCategory);
+            return updatedCategory;
         }
         else {
             System.out.println("Inside optional not category present");
