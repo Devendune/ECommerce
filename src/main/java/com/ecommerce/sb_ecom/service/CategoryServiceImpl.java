@@ -40,13 +40,25 @@ public class CategoryServiceImpl implements CategoryService
     }
 
     @Override
-    public String updateCategory(Category category, Long categoryId) {
-        Optional<Category> =categories.stream()
+    public Category updateCategory(Category category, Long categoryId) {
+        Optional<Category>optionalCategory =categories.stream()
                 .filter(c->c.getCategoryId().equals(categoryId))
                 .findFirst();
 
-
+        if(optionalCategory.isPresent())
+        {
+            System.out.println("Inside optional category present");
+            Category existingCategory=optionalCategory.get();
+            System.out.println("The input category name is "+category.getCategoryName());
+            existingCategory.setCategoryName(category.getCategoryName());
+            System.out.println("The optional category name after setting is "+existingCategory.getCategoryName());
+            return existingCategory;
+        }
+        else {
+            System.out.println("Inside optional not category present");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found");
+        }
     }
 
-    public
+
 }
