@@ -1,5 +1,6 @@
 package com.ecommerce.sb_ecom.service;
 
+import com.ecommerce.sb_ecom.exceptions.ResourceNotFoundException;
 import com.ecommerce.sb_ecom.model.Category;
 import com.ecommerce.sb_ecom.repository.CategoryRepository;
 import jakarta.persistence.Access;
@@ -29,6 +30,7 @@ public class CategoryServiceImpl implements CategoryService
     @Override
     public String createCategory(Category category)
     {
+        Category savedCategory=categoryRepository.findByCategoryName(category.getCategoryName());
         categoryRepository.save(category);
         return "The category was added successfully";
     }
@@ -54,12 +56,11 @@ public class CategoryServiceImpl implements CategoryService
         {
             Category existingCategory=optionalCategory.get();
             existingCategory.setCategoryName(category.getCategoryName());
-            Category updatedCategory=categoryRepository.save(existingCategory);
-            return updatedCategory;
+            return categoryRepository.save(existingCategory);
         }
         else {
             System.out.println("Inside optional not category present");
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found");
+            throw new ResourceNotFoundException("Category","updation","model");
         }
     }
 

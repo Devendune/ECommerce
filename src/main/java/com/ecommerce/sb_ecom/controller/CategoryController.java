@@ -49,7 +49,7 @@ public class CategoryController
     {
         try{
             Category updatedCategory=categoryService.updateCategory(category,categoryId);
-            System.out.println("The received category name is "+updatedCategory.getCategoryName());
+            //System.out.println("The received category name is "+updatedCategory.getCategoryName());
             return new ResponseEntity<>(updatedCategory,HttpStatus.OK);
         }catch (ResponseStatusException e){
             return new ResponseEntity<>(null,e.getStatusCode());
