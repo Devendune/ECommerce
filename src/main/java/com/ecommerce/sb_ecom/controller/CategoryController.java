@@ -15,6 +15,7 @@ import java.util.List;
 @RestController
 public class CategoryController
 {
+
     private CategoryService categoryService;
     long currId=1;
 
@@ -22,10 +23,18 @@ public class CategoryController
         this.categoryService = categoryService;
     }
 
-    @GetMapping("/api/public/categories")
-    public ResponseEntity<CategoryResponse> getAllCategories()
+    @GetMapping("/echo")
+    public ResponseEntity<String> echoMessage(@RequestParam(name="pageNumber") Integer pageNumber,
+                                              @RequestParam(name="pageSize") Integer pageSize)
     {
-        CategoryResponse categoryResponse=categoryService.getAllCategories();
+        return new ResponseEntity<>("The pageNumber: "+ pageNumber+" The pageSize is "+pageSize,HttpStatus.OK);
+    }
+
+    @GetMapping("/api/public/categories")
+    public ResponseEntity<CategoryResponse> getAllCategories(@RequestParam(name="pageNumber") Integer pageNumber,
+                                                             @RequestParam(name="pageSize") Integer pageSize)
+    {
+        CategoryResponse categoryResponse=categoryService.getAllCategories(pageNumber,pageSize);
         return new ResponseEntity<>(categoryResponse,HttpStatus.OK);
     }
 

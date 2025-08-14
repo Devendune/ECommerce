@@ -6,13 +6,12 @@ import com.ecommerce.sb_ecom.model.Category;
 import com.ecommerce.sb_ecom.payload.CategoryDTO;
 import com.ecommerce.sb_ecom.payload.CategoryResponse;
 import com.ecommerce.sb_ecom.repository.CategoryRepository;
-import jakarta.persistence.Access;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +29,12 @@ public class CategoryServiceImpl implements CategoryService
     private ModelMapper modelMapper;
 
     @Override
-    public CategoryResponse getAllCategories()
+    public CategoryResponse getAllCategories(Integer pageNumber, Integer pageSize)
     {
-        List<Category>categories=categoryRepository.findAll();
+        Pageable pageDetails= PageRequest.of(pageNumber,pageSize);
+        Page<Category> categoryPage=categoryRepository.findAll(pageDetails);
+        List<Category>categories=categoryPage.getContent();
+
         if(categories.size()==0)
             throw new APIException("No Categories are present,Please create one");
 
