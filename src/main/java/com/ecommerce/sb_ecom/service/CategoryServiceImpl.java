@@ -35,6 +35,8 @@ public class CategoryServiceImpl implements CategoryService
         Page<Category> categoryPage=categoryRepository.findAll(pageDetails);
         List<Category>categories=categoryPage.getContent();
 
+        List<Category>totalCategories=categoryRepository.findAll();
+
         if(categories.size()==0)
             throw new APIException("No Categories are present,Please create one");
 
@@ -44,6 +46,12 @@ public class CategoryServiceImpl implements CategoryService
 
         CategoryResponse categoryResponse=new CategoryResponse();
         categoryResponse.setContent(categoryDTOS);
+        categoryResponse.setTotalElements((int)categoryPage.getTotalElements());
+        categoryResponse.setPageSize(categoryPage.getSize());
+        categoryResponse.setPageNumber(categoryPage.getNumber());
+        categoryResponse.setTotalPages(categoryPage.getTotalPages());
+        categoryResponse.setLastPage(categoryPage.isLast());
+
        return categoryResponse;
     }
 
