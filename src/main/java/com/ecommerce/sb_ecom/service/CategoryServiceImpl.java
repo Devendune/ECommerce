@@ -1,9 +1,13 @@
 package com.ecommerce.sb_ecom.service;
 
+import com.ecommerce.sb_ecom.exceptions.APIException;
 import com.ecommerce.sb_ecom.exceptions.ResourceNotFoundException;
 import com.ecommerce.sb_ecom.model.Category;
+import com.ecommerce.sb_ecom.payload.CategoryDTO;
+import com.ecommerce.sb_ecom.payload.CategoryResponse;
 import com.ecommerce.sb_ecom.repository.CategoryRepository;
 import jakarta.persistence.Access;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,41 +26,59 @@ public class CategoryServiceImpl implements CategoryService
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @Override
-    public List<Category> getAllCategories() {
-       return categoryRepository.findAll();
+    public CategoryResponse getAllCategories()
+    {
+        List<Category>categories=categoryRepository.findAll();
+        if(categories.size()==0)
+            throw new APIException("No Categories are present,Please create one");
+
+        List<CategoryDTO> categoryDTOS=categories.stream()
+                .map(category -> modelMapper.map(category,CategoryDTO.class))
+                .toList();
+
+        CategoryResponse categoryResponse=new CategoryResponse();
+        categoryResponse.setContent(categoryDTOS);
+       return categoryResponse;
     }
 
     @Override
-    public String createCategory(Category category)
+    public CategoryDTO createCategory(CategoryDTO categoryDTO)
     {
-        Category savedCategory=categoryRepository.findByCategoryName(category.getCategoryName());
-        categoryRepository.save(category);
-        return "The category was added successfully";
+        Category category=modelMapper.map(categoryDTO,Category.class);
+        Category categoryFromDB=categoryRepository.findByCategoryName(category.getCategoryName());
+        if(categoryFromDB!=null)
+            throw new APIException("The Category with the name "+category.getCategoryName()+" already exists Please try another name");
+
+        Category savedCategory=categoryRepository.save(category);
+        return modelMapper.map(savedCategory,CategoryDTO.class);
     }
 
     @Override
-    public String deleteCategory(Long categoryId)
+    public CategoryDTO deleteCategory(Long categoryId)
     {
-        Optional<Category>category=categoryRepository.findById(categoryId);
-        if(category.isPresent()) {
-            categoryRepository.delete(category.get());
-            return "Category Deleted successfully";
+        Optional<Category> deletedCategory=categoryRepository.findById(categoryId);
+        if(deletedCategory.isPresent())
+        {
+        categoryRepository.delete(deletedCategory.get());
+        return modelMapper.map(deletedCategory.get(),CategoryDTO.class);
         }
-
-
-        return "Category with id" +categoryId+ "deleted";
+        throw new APIException("The categoryId "+categoryId+" is not present");
     }
 
     @Override
-    public Category updateCategory(Category category, Long categoryId)
+    public CategoryDTO updateCategory(CategoryDTO category, Long categoryId)
     {
         Optional<Category> optionalCategory=categoryRepository.findById(categoryId);
         if(optionalCategory.isPresent())
         {
             Category existingCategory=optionalCategory.get();
             existingCategory.setCategoryName(category.getCategoryName());
-            return categoryRepository.save(existingCategory);
+            Category savedResponse= categoryRepository.save(existingCategory);
+            return modelMapper.map(savedResponse,CategoryDTO.class);
         }
         else {
             System.out.println("Inside optional not category present");
