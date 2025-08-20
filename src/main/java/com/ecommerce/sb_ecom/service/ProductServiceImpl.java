@@ -63,7 +63,12 @@ public class ProductServiceImpl implements ProductService
             throw new ResourceNotFoundException("Category","category","id");
 
         List<Product>products=productRepository.findByCategoryOrderByPriceAsc(category.get());
-        Product product= products.get(0);
-        return modelMapper.map(product,ProductResponse.class);
+        List<ProductDTO>responses=products.stream()
+                .map(product -> modelMapper.map(product,ProductDTO.class))
+                .toList();
+
+        ProductResponse productResponse=new ProductResponse();
+        productResponse.setContent(responses);
+        return productResponse;
     }
 }
