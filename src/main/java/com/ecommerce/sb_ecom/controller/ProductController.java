@@ -1,7 +1,12 @@
 package com.ecommerce.sb_ecom.controller;
 
 import com.ecommerce.sb_ecom.model.Category;
+import com.ecommerce.sb_ecom.model.Product;
 import com.ecommerce.sb_ecom.payload.ProductDTO;
+import com.ecommerce.sb_ecom.payload.ProductResponse;
+import com.ecommerce.sb_ecom.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,15 +16,27 @@ import java.util.List;
 @RequestMapping("/api")
 public class ProductController
 {
-    @GetMapping("/produc")
-    public ResponseEntity<List<ProductDTO>>getProducts()
-    {
+    @Autowired
+    private ProductService productService;
 
+    @GetMapping("/products/allProducts")
+    public ResponseEntity<List<ProductDTO>> getAllProducts()
+    {
+        List<ProductDTO>products=productService.getProducts();
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
     @PostMapping("/admin/categories/{categoryId}/product")
-    public ResponseEntity<ProductDTO>addProduct(@RequestBody ProductDTO productDTO, @PathVariable Long categoryId)
+    public ResponseEntity<ProductDTO>addProduct(@RequestBody Product product, @PathVariable Long categoryId)
     {
+        ProductDTO outputProductDTO=productService.addProduct(product,categoryId);
+        return new ResponseEntity<>(outputProductDTO, HttpStatus.CREATED);
+    }
 
+    @GetMapping("/products/getProduct/categories/{categoryId}")
+    public ResponseEntity<ProductResponse> getProductByCategory(@PathVariable Long categoryId)
+    {
+        ProductResponse productResponse=productService.searchByCategory(categoryId);
+        return new ResponseEntity<>(productResponse,HttpStatus.OK);
     }
 }
