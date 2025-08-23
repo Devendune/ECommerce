@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 @RestControllerAdvice
 public class MyGlobalExceptionHandler
@@ -41,4 +42,15 @@ public class MyGlobalExceptionHandler
         APIResponse apiResponse=new APIResponse(message,true);
         return new ResponseEntity<>(apiResponse,HttpStatus.BAD_REQUEST);
     }
+
+
+
+    @ExceptionHandler(ProductAlreadyExistsException.class)
+    public ResponseEntity<APIResponse> productExists(ProductAlreadyExistsException e)
+    {
+        String message=e.getMessage();
+        APIResponse apiResponse=new APIResponse(message,true);
+        return new ResponseEntity<>(apiResponse,HttpStatus.BAD_REQUEST);
+    }
 }
+

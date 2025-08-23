@@ -97,7 +97,7 @@ public class CategoryServiceImpl implements CategoryService
         }
         else {
             System.out.println("Inside optional not category present");
-            throw new ResourceNotFoundException("Category","updation","model");
+            throw new ResourceNotFoundException("Category with id"+categoryId);
         }
     }
 

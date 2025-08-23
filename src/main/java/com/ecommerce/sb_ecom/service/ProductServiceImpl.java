@@ -1,5 +1,6 @@
 package com.ecommerce.sb_ecom.service;
 
+import com.ecommerce.sb_ecom.exceptions.ProductAlreadyExistsException;
 import com.ecommerce.sb_ecom.exceptions.ResourceNotFoundException;
 import com.ecommerce.sb_ecom.model.Category;
 import com.ecommerce.sb_ecom.model.Product;
@@ -47,7 +48,20 @@ public class ProductServiceImpl implements ProductService
         Product product=modelMapper.map(productDTO,Product.class);
         Optional<Category> category=categoryRepository.findById(categoryId);
         if(category.isEmpty())
-            throw new ResourceNotFoundException("category","categoryId","category");
+            throw new ResourceNotFoundException("category");
+
+        List<Product>products=category.get().getProducts();
+        Boolean productPresent=false;
+        for(Product currentProduct:products)
+        {
+            if(currentProduct.getProductName().equals(productDTO.getProductName()))
+            {
+                productPresent=true;
+                break;
+            }
+        }
+        if(productPresent==true)
+            throw new ProductAlreadyExistsException("The product with name "+productDTO.getProductName()+" already exists");
 
         product.setCategory(category.get());
         Double discountedPrice=product.getPrice()* product.getDiscount()*0.01;
@@ -74,7 +88,7 @@ public class ProductServiceImpl implements ProductService
     {
         Optional<Category> category=categoryRepository.findById(categoryId);
         if(category.isEmpty())
-            throw new ResourceNotFoundException("Category","category","id");
+            throw new ResourceNotFoundException("Category");
 
         List<Product>products=productRepository.findByCategoryOrderByPriceAsc(category.get());
         List<ProductDTO>responses=products.stream()
@@ -91,7 +105,7 @@ public class ProductServiceImpl implements ProductService
     {
         List<Product> productList=productRepository.findByProductNameLikeIgnoreCase(keyword);
         if(productList.isEmpty())
-            throw new ResourceNotFoundException("Product","Product","Product");
+            throw new ResourceNotFoundException("Product");
 
         List<ProductDTO>responses=productList.stream()
                 .map(product -> modelMapper.map(product,ProductDTO.class))
@@ -108,7 +122,7 @@ public class ProductServiceImpl implements ProductService
         Product product=modelMapper.map(productDTO,Product.class);
         Optional<Product> fetchedProductOpt=productRepository.findById(productId);
         if(fetchedProductOpt.isEmpty())
-            throw new ResourceNotFoundException("Product","product","id");
+            throw new ResourceNotFoundException("Product");
 
         Product fetchedProduct=fetchedProductOpt.get();
         fetchedProduct.setProductName(product.getProductName());
@@ -122,7 +136,11 @@ public class ProductServiceImpl implements ProductService
     }
 
     @Override
-    public void deleteProductById(Long productId) {
+    public void deleteProductById(Long productId)
+    {
+        Optional<Product> product=productRepository.findById(productId);
+        if(product.isEmpty())
+            throw new ResourceNotFoundException("Product with id"+productId);
         productRepository.deleteById(productId);
     }
 
@@ -131,7 +149,7 @@ public class ProductServiceImpl implements ProductService
         //Get the product from DB
         Optional<Product> productDB=productRepository.findById(productId);
         if(productDB.isEmpty())
-            throw new ResourceNotFoundException("Product","product","id");
+            throw new ResourceNotFoundException("Product");
 
 
         String imageName=fileService.uploadImage(path,image);

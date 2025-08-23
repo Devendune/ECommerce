@@ -13,4 +13,5 @@ import org.springframework.stereotype.Repository;
 public interface CategoryRepository extends JpaRepository<Category, Long>
 {
     Category findByCategoryName(@NotBlank @Size(min=5,message="Category name must contain atleast five characters") String categoryName);
+
 }
