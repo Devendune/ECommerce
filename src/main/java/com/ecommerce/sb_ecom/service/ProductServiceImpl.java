@@ -29,8 +29,9 @@ public class ProductServiceImpl implements ProductService
 
     @Override
     @Transactional
-    public ProductDTO addProduct(Product product, Long categoryId)
+    public ProductDTO addProduct(ProductDTO productDTO, Long categoryId)
     {
+        Product product=modelMapper.map(productDTO,Product.class);
         Optional<Category> category=categoryRepository.findById(categoryId);
         if(category.isEmpty())
             throw new ResourceNotFoundException("category","categoryId","category");
@@ -89,8 +90,9 @@ public class ProductServiceImpl implements ProductService
     }
 
     @Override
-    public ProductDTO updatingProduct(Product product, Long productId)
+    public ProductDTO updatingProduct(ProductDTO productDTO, Long productId)
     {
+        Product product=modelMapper.map(productDTO,Product.class);
         Optional<Product> fetchedProductOpt=productRepository.findById(productId);
         if(fetchedProductOpt.isEmpty())
             throw new ResourceNotFoundException("Product","product","id");
@@ -104,5 +106,10 @@ public class ProductServiceImpl implements ProductService
 
         Product updatedProduct= productRepository.save(fetchedProduct);
         return modelMapper.map(updatedProduct,ProductDTO.class);
+    }
+
+    @Override
+    public void deleteProductById(Long productId) {
+        productRepository.deleteById(productId);
     }
 }

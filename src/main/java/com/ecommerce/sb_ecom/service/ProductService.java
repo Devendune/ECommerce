@@ -7,7 +7,7 @@ import com.ecommerce.sb_ecom.payload.ProductResponse;
 import java.util.List;
 
 public interface ProductService {
-    public ProductDTO addProduct(Product product, Long categoryId);
+    public ProductDTO addProduct(ProductDTO productDTO, Long categoryId);
 
     List<ProductDTO> getProducts();
 
@@ -15,5 +15,7 @@ public interface ProductService {
 
     ProductResponse searchByProductName(String keyword);
 
-    ProductDTO updatingProduct(Product product, Long productId);
+    ProductDTO updatingProduct(ProductDTO productDTO, Long productId);
+
+    public void deleteProductById(Long productId);
 }
