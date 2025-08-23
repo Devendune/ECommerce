@@ -10,6 +10,7 @@ import com.ecommerce.sb_ecom.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,6 +33,12 @@ public class ProductServiceImpl implements ProductService
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private FileService fileService;
+
+    @Value("${project.image}")
+    private String path;
 
     @Override
     @Transactional
@@ -126,24 +133,11 @@ public class ProductServiceImpl implements ProductService
         if(productDB.isEmpty())
             throw new ResourceNotFoundException("Product","product","id");
 
-        String path="/images";
-        String imageName=uploadImage(path,image);
+
+        String imageName=fileService.uploadImage(path,image);
         productDB.get().setImage(imageName);
         Product product=productRepository.save(productDB.get());
         return modelMapper.map(product,ProductDTO.class);
     }
 
-    private String uploadImage(String path, MultipartFile file) throws IOException {
-        String originalFileName=file.getName();
-        String randomId= UUID.randomUUID().toString();
-        String fileName=randomId.concat(originalFileName.substring(originalFileName.lastIndexOf('.')));
-        String filePath=path+ File.pathSeparator+file;
-
-        File folder=new File(path);
-        if(!folder.exists())
-            folder.mkdir();
-
-        Files.copy(file.getInputStream(), Paths.get(filePath));
-        return fileName;
-    }
 }
