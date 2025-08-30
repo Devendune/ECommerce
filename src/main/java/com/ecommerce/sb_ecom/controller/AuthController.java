@@ -34,9 +34,6 @@ import java.util.stream.Collectors;
 public class AuthController
 {
     @Autowired
-    private LoginRequest loginRequest;
-
-    @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
@@ -80,20 +77,21 @@ public class AuthController
                 .map(item->item.getAuthority())
                 .collect(Collectors.toList());
 
-        UserInfoResponse loginResponse=new UserInfoResponse(userDetails.getId(),jwtToken,userDetails.getUsername()
+        UserInfoResponse loginResponse=
+                new UserInfoResponse(userDetails.getId(),jwtToken,userDetails.getUsername()
                 ,roles);
 
         return ResponseEntity.ok(loginResponse);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignUpRequest signUpRequest)
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest)
     {
-        if(userRepository.existsByUsername(signUpRequest.getName()))
+        if(userRepository.existsByUserName(signUpRequest.getName()))
             return new ResponseEntity<>(new MessageResponse("The user is already present"),HttpStatus.BAD_REQUEST);
 
-        if(userRepository.existsByEmail(signUpRequest.getName()))
-            return new ResponseEntity<>(new MessageResponse("The user is already present"),HttpStatus.BAD_REQUEST);
+        if(userRepository.existsByEmail(signUpRequest.getEmail()))
+            return new ResponseEntity<>(new MessageResponse("The user email is already present"),HttpStatus.BAD_REQUEST);
 
         User user=new User(signUpRequest.getName(),
                 signUpRequest.getEmail(),
@@ -106,35 +104,35 @@ public class AuthController
 
         if(strRoles==null)
         {
-            Role role=roleRepository.findByRoleName(AppRole.ROLE_USER);
+            Optional<Role> role=roleRepository.findByRoleName(AppRole.ROLE_USER);
             if(role==null)
              throw new RuntimeException("Error: Role is not found");
 
-            roles.add(role);
+            roles.add(role.get());
         }
         else {
             strRoles.forEach(role -> {
                 switch (role) {
                     case "admin":
-                        Role adminRole = roleRepository.findByRoleName(AppRole.ROLE_ADMIN);
+                        Optional<Role> adminRole = roleRepository.findByRoleName(AppRole.ROLE_ADMIN);
                         if (adminRole == null)
                             throw new RuntimeException("Error Role Admin Does not exist");
-                        roles.add(adminRole);
+                        roles.add(adminRole.get());
                         break;
 
 
                     case "seller":
-                        Role sellerRole = roleRepository.findByRoleName(AppRole.ROLE_SELLER);
+                        Optional<Role> sellerRole = roleRepository.findByRoleName(AppRole.ROLE_SELLER);
                         if (sellerRole == null)
                             throw new RuntimeException("Error Role seller Does not exist");
-                        roles.add(sellerRole);
+                        roles.add(sellerRole.get());
                         break;
 
                     default:
-                        Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER);
+                        Optional<Role> userRole = roleRepository.findByRoleName(AppRole.ROLE_USER);
                         if (userRole == null)
                             throw new RuntimeException("Error this role is not found");
-                        roles.add(userRole);
+                        roles.add(userRole.get());
                         break;
                 }
             });

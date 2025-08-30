@@ -21,8 +21,8 @@ public class Role
     @Column(length=20,name="role_name")
     private AppRole roleName;
 
-
-
-
-
+    public Role(AppRole appRole)
+    {
+        this.roleName=appRole;
+    }
 }
