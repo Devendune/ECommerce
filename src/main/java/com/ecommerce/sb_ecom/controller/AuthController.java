@@ -1,7 +1,9 @@
 package com.ecommerce.sb_ecom.controller;
 
+import com.ecommerce.sb_ecom.model.AppRole;
 import com.ecommerce.sb_ecom.model.Role;
 import com.ecommerce.sb_ecom.model.User;
+import com.ecommerce.sb_ecom.repository.RoleRepository;
 import com.ecommerce.sb_ecom.repository.UserRepository;
 import com.ecommerce.sb_ecom.security.jwt.JwtUtils;
 import com.ecommerce.sb_ecom.security.request.LoginRequest;
@@ -21,7 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,6 +43,9 @@ public class AuthController
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest)
@@ -96,7 +100,45 @@ public class AuthController
         Set<String> strRoles=signUpRequest.getRoles();
         Set<Role>roles=new HashSet<>();
 
+        if(strRoles==null)
+        {
+            Role role=roleRepository.findByRoleName(AppRole.ROLE_USER);
+            if(role==null)
+             throw new RuntimeException("Error: Role is not found");
 
+            roles.add(role);
+        }
+        else {
+            strRoles.forEach(role -> {
+                switch (role) {
+                    case "admin":
+                        Role adminRole = roleRepository.findByRoleName(AppRole.ROLE_ADMIN);
+                        if (adminRole == null)
+                            throw new RuntimeException("Error Role Admin Does not exist");
+                        roles.add(adminRole);
+                        break;
+
+
+                    case "seller":
+                        Role sellerRole = roleRepository.findByRoleName(AppRole.ROLE_SELLER);
+                        if (sellerRole == null)
+                            throw new RuntimeException("Error Role seller Does not exist");
+                        roles.add(sellerRole);
+                        break;
+
+                    default:
+                        Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER);
+                        if (userRole == null)
+                            throw new RuntimeException("Error this role is not found");
+                        roles.add(userRole);
+                        break;
+                }
+            });
+        }
+
+        user.setRoles(roles);
+        userRepository.save(user);
+        return new ResponseEntity<>(new MessageResponse("User registered successfully"),HttpStatus.OK);
     }
 
 }
